@@ -77,64 +77,51 @@
         <div class="powered">Powered by Vapi AI</div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@2.3.2/dist/vapi.umd.min.js"></script>
-    <script>
-        var vapiInstance = null;
-        var isCallActive = false;
+    <script type="module">
+        import Vapi from "https://esm.sh/@vapi-ai/web@2.5.2";
 
-        function initVapi() {
-            if (window.Vapi) {
-                vapiInstance = new window.Vapi("9717506b-092e-41e2-ab9b-0c5c123c46ee");
-            } else if (window.default) {
-                vapiInstance = new window.default("9717506b-092e-41e2-ab9b-0c5c123c46ee");
-            }
-            if (vapiInstance) {
-                vapiInstance.on("call-start", function() {
-                    isCallActive = true;
-                    document.getElementById("avatar").classList.add("active");
-                    document.getElementById("callBtn").classList.add("end");
-                    document.getElementById("callBtn").textContent = "✖";
-                    document.getElementById("status").textContent = "Connected! Vaani is listening...";
-                    document.getElementById("listeningIndicator").classList.add("show");
-                });
-                vapiInstance.on("speech-start", function() {
-                    document.getElementById("status").textContent = "🔊 Speaking...";
-                });
-                vapiInstance.on("speech-end", function() {
-                    document.getElementById("status").textContent = "🎤 Listening...";
-                });
-                vapiInstance.on("call-end", function() {
-                    isCallActive = false;
-                    document.getElementById("avatar").classList.remove("active");
-                    document.getElementById("callBtn").classList.remove("end");
-                    document.getElementById("callBtn").textContent = "📞";
-                    document.getElementById("status").textContent = "Call ended. Tap to start again.";
-                    document.getElementById("listeningIndicator").classList.remove("show");
-                });
-                vapiInstance.on("error", function(e) {
-                    document.getElementById("status").textContent = "Error: " + (e.message || "Try again");
-                });
-            }
-        }
+        var isCallActive = false;
+        var vapiInstance = new Vapi("9717506b-092e-41e2-ab9b-0c5c123c46ee");
+        console.log("Vapi initialized!");
+
+        vapiInstance.on("call-start", function() {
+            isCallActive = true;
+            document.getElementById("avatar").classList.add("active");
+            document.getElementById("callBtn").classList.add("end");
+            document.getElementById("callBtn").textContent = "✖";
+            document.getElementById("status").textContent = "Connected! Vaani is listening...";
+            document.getElementById("listeningIndicator").classList.add("show");
+        });
+
+        vapiInstance.on("speech-start", function() {
+            document.getElementById("status").textContent = "🔊 Speaking...";
+        });
+
+        vapiInstance.on("speech-end", function() {
+            document.getElementById("status").textContent = "🎤 Listening...";
+        });
+
+        vapiInstance.on("call-end", function() {
+            isCallActive = false;
+            document.getElementById("avatar").classList.remove("active");
+            document.getElementById("callBtn").classList.remove("end");
+            document.getElementById("callBtn").textContent = "📞";
+            document.getElementById("status").textContent = "Call ended. Tap to start again.";
+            document.getElementById("listeningIndicator").classList.remove("show");
+        });
+
+        vapiInstance.on("error", function(e) {
+            document.getElementById("status").textContent = "Error: " + (e.message || "Try again");
+            console.error("Vapi Error:", e);
+        });
 
         document.getElementById("callBtn").addEventListener("click", function() {
-            if (!vapiInstance) {
-                initVapi();
-                if (!vapiInstance) {
-                    document.getElementById("status").textContent = "Loading... try again";
-                    return;
-                }
-            }
             if (isCallActive) {
                 vapiInstance.stop();
             } else {
                 document.getElementById("status").textContent = "Connecting...";
                 vapiInstance.start("2aacc2c2-8555-4b6d-85b5-08c1423935fc");
             }
-        });
-
-        window.addEventListener("load", function() {
-            setTimeout(initVapi, 1000);
         });
     </script>
 </body>
