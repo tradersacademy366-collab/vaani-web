@@ -120,9 +120,7 @@
                 vapiInstance.stop();
             } else {
                 document.getElementById("status").textContent = "Connecting...";
-                vapiInstance.start({
-    squadId: "2aacc2c2-8555-4b6d-85b5-08c1423935fc"
-});
+                vapiInstance.start(null, null, "2aacc2c2-8555-4b6d-85b5-08c1423935fc");
             }
         });
     </script>
