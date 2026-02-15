@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaani - Your AI Assistant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+        .container { text-align: center; padding: 40px 30px; max-width: 420px; width: 90%; }
+        .avatar {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 auto 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 48px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 8px 48px rgba(102, 126, 234, 0.7); }
+        }
+        .avatar.active {
+            background: linear-gradient(135deg, #00c853, #00e676);
+            animation: activePulse 1s ease-in-out infinite;
+        }
+        @keyframes activePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 32px rgba(0, 200, 83, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 48px rgba(0, 200, 83, 0.7); }
+        }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .subtitle { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 32px; }
+        .status { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 32px; min-height: 24px; }
+        .call-btn {
+            width: 80px; height: 80px; border-radius: 50%; border: none;
+            background: linear-gradient(135deg, #00c853, #00e676);
+            color: white; font-size: 32px; cursor: pointer;
+            box-shadow: 0 6px 24px rgba(0, 200, 83, 0.5); transition: all 0.3s ease;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+        .call-btn:hover { transform: scale(1.1); }
+        .call-btn.end { background: linear-gradient(135deg, #ff1744, #ff5252); }
+        .features { margin-top: 40px; display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+        .feature { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 12px; color: rgba(255,255,255,0.7); }
+        .feature span { font-size: 16px; display: block; margin-bottom: 4px; }
+        .powered { margin-top: 40px; font-size: 11px; color: rgba(255,255,255,0.3); }
+        .listening-indicator { display: none; gap: 4px; justify-content: center; margin-bottom: 20px; }
+        .listening-indicator.show { display: flex; }
+        .bar { width: 4px; height: 20px; background: #00e676; border-radius: 2px; animation: bars 0.8s ease-in-out infinite; }
+        .bar:nth-child(2) { animation-delay: 0.1s; } .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; } .bar:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes bars { 0%, 100% { height: 8px; } 50% { height: 28px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="avatar" id="avatar">🎙️</div>
+        <h1>Vaani</h1>
+        <div class="subtitle">AI Assistant + Fashion Expert Dhruv</div>
+        <div class="listening-indicator" id="listeningIndicator">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
+        <div class="status" id="status">Tap to start conversation</div>
+        <button class="call-btn" id="callBtn" onclick="toggleCall()">📞</button>
+        <div class="features">
+            <div class="feature"><span>👗</span>Fashion Advice</div>
+            <div class="feature"><span>🎨</span>Style Expert</div>
+            <div class="feature"><span>💬</span>Hinglish</div>
+        </div>
+        <div class="powered">Powered by Vapi AI</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.umd.min.js"></script>
+    <script>
+        const vapi = new window.Vapi("9717506b-092e-41e2-ab9b-0c5c123c46ee");
+        let isCallActive = false;
+        const avatar = document.getElementById("avatar");
+        const status = document.getElementById("status");
+        const callBtn = document.getElementById("callBtn");
+        const listeningIndicator = document.getElementById("listeningIndicator");
+
+        function toggleCall() { isCallActive ? endCall() : startCall(); }
+
+        function startCall() {
+            status.textContent = "Connecting...";
+            vapi.start("2aacc2c2-8555-4b6d-85b5-08c1423935fc");
+        }
+        function endCall() { vapi.stop(); }
+
+        vapi.on("call-start", () => {
+            isCallActive = true; avatar.classList.add("active");
+            callBtn.classList.add("end"); callBtn.textContent = "✖";
+            status.textContent = "Connected! Vaani is listening...";
+            listeningIndicator.classList.add("show");
+        });
+        vapi.on("speech-start", () => { status.textContent = "🔊 Speaking..."; });
+        vapi.on("speech-end", () => { status.textContent = "🎤 Listening..."; });
+        vapi.on("call-end", () => {
+            isCallActive = false; avatar.classList.remove("active");
+            callBtn.classList.remove("end"); callBtn.textContent = "📞";
+            status.textContent = "Call ended. Tap to start again.";
+            listeningIndicator.classList.remove("show");
+        });
+        vapi.on("error", (e) => { status.textContent = "Error occurred. Try again."; });
+    </script>
+</body>
+</html>
